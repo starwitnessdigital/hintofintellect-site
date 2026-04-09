@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Hint of Intellect LLC — AI tools for people who overthink everything." />
+  <meta property="og:title" content="Hint of Intellect" />
+  <meta property="og:description" content="AI tools for people who overthink everything." />
+  <meta property="og:url" content="https://hintofintellect.com" />
+  <meta property="og:type" content="website" />
+  <title>Hint of Intellect</title>
+  <style>
+    /* ── Reset & Base ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a0a;
+      --bg2:       #111111;
+      --bg3:       #161616;
+      --border:    rgba(255,255,255,0.07);
+      --text:      #f0f0f0;
+      --muted:     #888;
+      --gold:      #c9a84c;
+      --gold-dim:  rgba(201,168,76,0.15);
+      --gold-glow: rgba(201,168,76,0.08);
+      --radius:    12px;
+      --font:      -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Star field ─────────────────────────────────────────────── */
+    .stars-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.15; }
+      50%       { opacity: 0.85; }
+    }
+
+    @keyframes drift {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-6px); }
+    }
+
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: #fff;
+      animation: twinkle var(--dur, 4s) ease-in-out infinite var(--delay, 0s),
+                 drift    var(--dur2, 8s) ease-in-out infinite alternate var(--delay, 0s);
+    }
+
+    /* generate 60 stars via nth-child */
+    .star:nth-child(1)  { width:1px; height:1px; top:4%;  left:12%; --dur:3.2s; --dur2:7s;  --delay:-1.1s; }
+    .star:nth-child(2)  { width:2px; height:2px; top:8%;  left:34%; --dur:4.5s; --dur2:9s;  --delay:-0.4s; }
+    .star:nth-child(3)  { width:1px; height:1px; top:2%;  left:55%; --dur:2.8s; --dur2:6s;  --delay:-2.3s; }
+    .star:nth-child(4)  { width:2px; height:2px; top:15%; left:78%; --dur:5.1s; --dur2:10s; --delay:-0.9s; }
+    .star:nth-child(5)  { width:1px; height:1px; top:22%; left:91%; --dur:3.7s; --dur2:8s;  --delay:-3.1s; }
+    .star:nth-child(6)  { width:2px; height:2px; top:30%; left:7%;  --dur:4.2s; --dur2:9s;  --delay:-1.7s; }
+    .star:nth-child(7)  { width:1px; height:1px; top:37%; left:48%; --dur:3.0s; --dur2:7s;  --delay:-0.2s; }
+    .star:nth-child(8)  { width:2px; height:2px; top:44%; left:63%; --dur:5.5s; --dur2:11s; --delay:-2.8s; }
+    .star:nth-child(9)  { width:1px; height:1px; top:51%; left:22%; --dur:3.9s; --dur2:8s;  --delay:-1.4s; }
+    .star:nth-child(10) { width:2px; height:2px; top:58%; left:85%; --dur:4.7s; --dur2:10s; --delay:-0.6s; }
+    .star:nth-child(11) { width:1px; height:1px; top:66%; left:40%; --dur:2.5s; --dur2:6s;  --delay:-3.5s; }
+    .star:nth-child(12) { width:2px; height:2px; top:73%; left:18%; --dur:5.8s; --dur2:12s; --delay:-1.0s; }
+    .star:nth-child(13) { width:1px; height:1px; top:80%; left:70%; --dur:3.3s; --dur2:7s;  --delay:-2.1s; }
+    .star:nth-child(14) { width:2px; height:2px; top:88%; left:50%; --dur:4.0s; --dur2:9s;  --delay:-0.8s; }
+    .star:nth-child(15) { width:1px; height:1px; top:95%; left:30%; --dur:2.9s; --dur2:6s;  --delay:-3.9s; }
+    .star:nth-child(16) { width:1px; height:1px; top:5%;  left:5%;  --dur:3.6s; --dur2:8s;  --delay:-1.6s; }
+    .star:nth-child(17) { width:2px; height:2px; top:11%; left:25%; --dur:4.4s; --dur2:9s;  --delay:-0.3s; }
+    .star:nth-child(18) { width:1px; height:1px; top:18%; left:45%; --dur:2.7s; --dur2:6s;  --delay:-2.5s; }
+    .star:nth-child(19) { width:2px; height:2px; top:25%; left:65%; --dur:5.2s; --dur2:10s; --delay:-0.7s; }
+    .star:nth-child(20) { width:1px; height:1px; top:32%; left:88%; --dur:3.8s; --dur2:8s;  --delay:-3.2s; }
+    .star:nth-child(21) { width:2px; height:2px; top:40%; left:15%; --dur:4.6s; --dur2:9s;  --delay:-1.2s; }
+    .star:nth-child(22) { width:1px; height:1px; top:47%; left:38%; --dur:3.1s; --dur2:7s;  --delay:-0.5s; }
+    .star:nth-child(23) { width:2px; height:2px; top:54%; left:58%; --dur:5.0s; --dur2:10s; --delay:-2.0s; }
+    .star:nth-child(24) { width:1px; height:1px; top:61%; left:80%; --dur:3.5s; --dur2:7s;  --delay:-1.8s; }
+    .star:nth-child(25) { width:2px; height:2px; top:68%; left:28%; --dur:4.8s; --dur2:10s; --delay:-0.1s; }
+    .star:nth-child(26) { width:1px; height:1px; top:76%; left:55%; --dur:2.6s; --dur2:6s;  --delay:-3.7s; }
+    .star:nth-child(27) { width:2px; height:2px; top:83%; left:10%; --dur:5.4s; --dur2:11s; --delay:-1.3s; }
+    .star:nth-child(28) { width:1px; height:1px; top:90%; left:75%; --dur:3.4s; --dur2:7s;  --delay:-2.6s; }
+    .star:nth-child(29) { width:1px; height:1px; top:6%;  left:96%; --dur:4.1s; --dur2:9s;  --delay:-0.9s; }
+    .star:nth-child(30) { width:2px; height:2px; top:14%; left:2%;  --dur:2.4s; --dur2:6s;  --delay:-3.3s; }
+    .star:nth-child(31) { width:1px; height:1px; top:20%; left:20%; --dur:3.7s; --dur2:8s;  --delay:-1.5s; }
+    .star:nth-child(32) { width:2px; height:2px; top:27%; left:42%; --dur:4.9s; --dur2:10s; --delay:-0.4s; }
+    .star:nth-child(33) { width:1px; height:1px; top:34%; left:60%; --dur:2.2s; --dur2:5s;  --delay:-2.9s; }
+    .star:nth-child(34) { width:2px; height:2px; top:42%; left:82%; --dur:5.6s; --dur2:11s; --delay:-1.0s; }
+    .star:nth-child(35) { width:1px; height:1px; top:49%; left:35%; --dur:3.2s; --dur2:7s;  --delay:-3.4s; }
+    .star:nth-child(36) { width:2px; height:2px; top:56%; left:52%; --dur:4.3s; --dur2:9s;  --delay:-0.8s; }
+    .star:nth-child(37) { width:1px; height:1px; top:63%; left:92%; --dur:3.0s; --dur2:7s;  --delay:-2.2s; }
+    .star:nth-child(38) { width:2px; height:2px; top:70%; left:4%;  --dur:5.7s; --dur2:12s; --delay:-1.1s; }
+    .star:nth-child(39) { width:1px; height:1px; top:78%; left:67%; --dur:2.8s; --dur2:6s;  --delay:-3.6s; }
+    .star:nth-child(40) { width:2px; height:2px; top:85%; left:33%; --dur:4.5s; --dur2:9s;  --delay:-0.6s; }
+    .star:nth-child(41) { width:1px; height:1px; top:92%; left:88%; --dur:3.6s; --dur2:8s;  --delay:-2.4s; }
+    .star:nth-child(42) { width:2px; height:2px; top:3%;  left:73%; --dur:4.0s; --dur2:9s;  --delay:-1.9s; }
+    .star:nth-child(43) { width:1px; height:1px; top:9%;  left:16%; --dur:2.3s; --dur2:5s;  --delay:-3.0s; }
+    .star:nth-child(44) { width:2px; height:2px; top:17%; left:90%; --dur:5.3s; --dur2:11s; --delay:-0.2s; }
+    .star:nth-child(45) { width:1px; height:1px; top:24%; left:8%;  --dur:3.4s; --dur2:7s;  --delay:-1.7s; }
+    .star:nth-child(46) { width:2px; height:2px; top:31%; left:29%; --dur:4.7s; --dur2:10s; --delay:-2.7s; }
+    .star:nth-child(47) { width:1px; height:1px; top:38%; left:72%; --dur:3.1s; --dur2:7s;  --delay:-0.3s; }
+    .star:nth-child(48) { width:2px; height:2px; top:46%; left:95%; --dur:5.1s; --dur2:10s; --delay:-1.6s; }
+    .star:nth-child(49) { width:1px; height:1px; top:53%; left:44%; --dur:2.6s; --dur2:6s;  --delay:-3.8s; }
+    .star:nth-child(50) { width:2px; height:2px; top:60%; left:14%; --dur:4.4s; --dur2:9s;  --delay:-1.2s; }
+    .star:nth-child(51) { width:1px; height:1px; top:67%; left:62%; --dur:3.8s; --dur2:8s;  --delay:-0.5s; }
+    .star:nth-child(52) { width:2px; height:2px; top:74%; left:38%; --dur:5.0s; --dur2:10s; --delay:-2.1s; }
+    .star:nth-child(53) { width:1px; height:1px; top:81%; left:20%; --dur:2.9s; --dur2:6s;  --delay:-1.4s; }
+    .star:nth-child(54) { width:2px; height:2px; top:89%; left:56%; --dur:4.2s; --dur2:9s;  --delay:-3.2s; }
+    .star:nth-child(55) { width:1px; height:1px; top:96%; left:10%; --dur:3.3s; --dur2:7s;  --delay:-0.7s; }
+    .star:nth-child(56) { width:1px; height:1px; top:1%;  left:50%; --dur:4.6s; --dur2:10s; --delay:-2.3s; }
+    .star:nth-child(57) { width:2px; height:2px; top:7%;  left:84%; --dur:3.5s; --dur2:8s;  --delay:-1.0s; }
+    .star:nth-child(58) { width:1px; height:1px; top:13%; left:3%;  --dur:2.1s; --dur2:5s;  --delay:-3.5s; }
+    .star:nth-child(59) { width:2px; height:2px; top:19%; left:77%; --dur:5.2s; --dur2:11s; --delay:-0.1s; }
+    .star:nth-child(60) { width:1px; height:1px; top:26%; left:98%; --dur:3.9s; --dur2:8s;  --delay:-1.8s; }
+
+    /* ── Gradient orb ───────────────────────────────────────────── */
+    @keyframes orb-pulse {
+      0%, 100% { opacity: 0.18; transform: scale(1); }
+      50%       { opacity: 0.28; transform: scale(1.08); }
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(80px);
+      animation: orb-pulse 8s ease-in-out infinite;
+    }
+    .orb-1 {
+      width: 500px; height: 500px;
+      top: -150px; left: -150px;
+      background: radial-gradient(circle, rgba(201,168,76,0.4) 0%, transparent 70%);
+      animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 400px; height: 400px;
+      bottom: 10%; right: -100px;
+      background: radial-gradient(circle, rgba(100,120,200,0.3) 0%, transparent 70%);
+      animation-delay: -4s;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────────── */
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Nav ────────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 20px 0;
+      background: rgba(10,10,10,0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+    .nav-logo span {
+      color: var(--gold);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── Hero ───────────────────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+    }
+
+    .hero-inner { max-width: 700px; }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: var(--gold-dim);
+      border: 1px solid rgba(201,168,76,0.25);
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 32px;
+      animation: fade-up 0.8s ease both;
+    }
+
+    .hero-title {
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.08;
+      margin-bottom: 24px;
+      animation: fade-up 0.8s 0.1s ease both;
+    }
+
+    .hero-title .accent { color: var(--gold); }
+
+    .hero-tagline {
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: var(--muted);
+      font-weight: 300;
+      letter-spacing: 0.01em;
+      margin-bottom: 48px;
+      animation: fade-up 0.8s 0.2s ease both;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fade-up 0.8s 0.3s ease both;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 13px 28px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: #0a0a0a;
+    }
+    .btn-primary:hover {
+      background: #d4b45a;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 32px rgba(201,168,76,0.35);
+    }
+
+    .btn-ghost {
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .btn-ghost:hover {
+      border-color: rgba(255,255,255,0.2);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    /* ── Section base ───────────────────────────────────────────── */
+    section { padding: 100px 0; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    .section-sub {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 520px;
+    }
+
+    .section-head { margin-bottom: 56px; }
+
+    /* ── Category label ─────────────────────────────────────────── */
+    .cat-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 48px 0 20px;
+    }
+    .cat-label:first-child { margin-top: 0; }
+
+    /* ── Product grid ───────────────────────────────────────────── */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gold-glow);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(201,168,76,0.25);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+    }
+    .card:hover::before { opacity: 1; }
+
+    .card-icon {
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .card-name {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+
+    .card-price {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gold);
+    }
+
+    .card-arrow {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--muted);
+      transition: all 0.2s ease;
+    }
+    .card:hover .card-arrow {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: var(--gold-dim);
+    }
+
+    /* ── About ──────────────────────────────────────────────────── */
+    #about {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .about-quote {
+      font-size: clamp(1.3rem, 2.5vw, 1.9rem);
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    .about-quote em {
+      color: var(--gold);
+      font-style: normal;
+    }
+
+    .about-body {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    .about-body p + p { margin-top: 16px; }
+
+    .about-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(201,168,76,0.3);
+      padding: 5px 12px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    /* ── Stripe section (trust) ─────────────────────────────────── */
+    #trust {
+      padding: 60px 0;
+      text-align: center;
+    }
+
+    .trust-text {
+      font-size: 13px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── Footer ─────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 0 40px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .footer-brand {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .footer-brand span { color: var(--gold); }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .footer-contact {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .footer-contact a:hover { color: var(--text); transition: color 0.2s; }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text); }
+
+    /* ── Responsive ─────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 0; }
+      .nav-links { display: none; }
+
+      #hero { padding: 100px 20px 60px; }
+
+      section { padding: 72px 0; }
+
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-links { justify-content: flex-start; }
+    }
+
+    @media (max-width: 480px) {
+      .products-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Divider ────────────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0;
+    }
+
+    /* ── Scrollbar ──────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+  </style>
+</head>
+<body>
+
+  <!-- Star field background -->
+  <div class="stars-wrap" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+    <div class="star"></div><div class="star"></div><div class="star"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="container">
+      <div class="nav-logo">hint<span>of</span>intellect</div>
+      <ul class="nav-links">
+        <li><a href="#products">Products</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="mailto:admin@hintofintellect.com">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero">
+    <div class="hero-inner">
+      <div class="hero-label">AI Tools &amp; Agents</div>
+      <h1 class="hero-title">Hint of<br /><span class="accent">Intellect</span></h1>
+      <p class="hero-tagline">ai tools for people who overthink everything</p>
+      <div class="hero-cta">
+        <a href="#products" class="btn btn-primary">Browse Products</a>
+        <a href="mailto:admin@hintofintellect.com" class="btn btn-ghost">Get in touch</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products -->
+  <section id="products">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-label">What we build</div>
+        <h2 class="section-title">Tools for every spiral.</h2>
+        <p class="section-sub">Consumer agents, business automation, digital products, and APIs — built to think so you don't have to.</p>
+      </div>
+
+      <!-- Consumer AI Agents -->
+      <div class="cat-label">Consumer AI Agents</div>
+      <div class="products-grid">
+
+        <a href="https://starwitness.gumroad.com/l/cosmic-agent" target="_blank" rel="noopener" class="card">
+          <div class="card-icon">✦</div>
+          <div class="card-name">CosmicAgent</div>
+          <div class="card-desc">Your AI astrology advisor. Mercury retrograde? There's an agent for that.</div>
+          <div class="card-footer">
+            <span class="card-price">$9.99 / mo</span>
+            <span class="card-arrow">↗</span>
+          </div>
+        </a>
+
+        <a href="https://starwitness.gumroad.com/l/wingman-ai" target="_blank" rel="noopener" class="card">
+          <div class="card-icon">◈</div>
+          <div class="card-name">Wingman</div>
+          <div class="card-desc">AI dating coach built for gay men. Profile help, conversation coaching, strategy.</div>
+          <div class="card-footer">
+            <span class="card-price">$9.99 / mo</span>
+            <span class="card-arrow">↗</span>
+          </div>
+        </a>
+
+        <a href="https://starwitness.gumroad.com/l/sidehustle-agent" target="_blank" rel="noopener" class="card">
+          <div class="card-icon">◉</div>
+          <div class="card-name">SideHustle Agent</div>
+          <div class="card-desc">AI business advisor for your next venture. Strategy, positioning, and reality checks.</div>
+          <div class="card-footer">
+            <span class="card-price">$14.99 / mo</span>
+            <span class="card-arrow">↗</span>
+          </div>
+        </a>
+
+        <a href="https://starwitness.gumroad.com/l/date-coach" target="_blank" rel="noopener" class="card">
+          <div class="card-icon">◇</div>
+          <div class="card-name">DateCoach</div>
+          <div class="card-desc">AI dating advisor for everyone. Better conversations, clearer boundaries, less ghosting.</div>
+          <div class="card-footer">
+            <span class="card-price">$4.99 / mo</span>
+            <span class="card-arrow">↗</span>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- B2B Agents -->
+      <div class="cat-label" style="margin-top:48px;">B2B AI Agents</div>
+      <div class="products-grid">
+
+        <a href="https://starwitness.gumroad.com/l/inbox-pilot" target="_blank" rel="noopener" class="card">
+          <div class="card-icon">⬡</div>
+          <div class="card-name">InboxPilot</div>
+          <div class="card-desc">Intelligent email triage for teams. Prioritize, categorize, and respond — automatically.</div>
+          <div class="card-footer">
+            <span class="card-price">$149 / mo</span>
+            <span class="card-arrow">↗</span>
+          </div>
+        </a>
+
+        <a href="https://starwitness.gumroad.com/l/report-bot" target="_blank" rel="noopener" class="card">
+          <div class="card-icon">⬢</div>
+          <div class="card-name">ReportBot</div>
+          <div class="card-desc">Automated weekly reporting that your team will actually read. Pulls data, writes prose.</div>
+          <div class="card-footer">
+            <span class="card-price">$199 / mo</span>
+            <span class="card-arrow">↗</span>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- Digital Products -->
+      <div class="cat-label" style="margin-top:48px;">Digital Products</div>
+      <div class="products-grid">
+
+        <a href="https://starwitness.gumroad.com/l/bro-charts" target="_blank" rel="noopener" class="card">
+          <div class="card-icon">◬</div>
+          <div class="card-name">Bro Charts</div>
+          <div class="card-desc">Astrology charts designed for the guys who say they don't believe in astrology.</div>
+          <div class="card-footer">
+            <span class="card-price">$29</span>
+            <span class="card-arrow">↗</span>
+          </div>
+        </a>
+
+        <a href="https://starwitness.gumroad.com/l/girlies-guide-to-ai" target="_blank" rel="noopener" class="card">
+          <div class="card-icon">◎</div>
+          <div class="card-name">The Girlie's Guide to AI</div>
+          <div class="card-desc">A no-jargon guide to actually using AI tools in your everyday life. Practical. Fun. Useful.</div>
+          <div class="card-footer">
+            <span class="card-price">$5.99</span>
+            <span class="card-arrow">↗</span>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- Developer Tools -->
+      <div class="cat-label" style="margin-top:48px;">Developer Tools</div>
+      <div class="products-grid">
+
+        <a href="https://api.starwitnessdigital.com" target="_blank" rel="noopener" class="card">
+          <div class="card-icon">⬟</div>
+          <div class="card-name">Star Witness API</div>
+          <div class="card-desc">Astrology and cosmic data as an API. Build the app you've been embarrassed to build.</div>
+          <div class="card-footer">
+            <span class="card-price">API</span>
+            <span class="card-arrow">↗</span>
+          </div>
+        </a>
+
+        <a href="https://intellectkit.dev" target="_blank" rel="noopener" class="card">
+          <div class="card-icon">⬠</div>
+          <div class="card-name">IntellectKit API</div>
+          <div class="card-desc">Infrastructure for AI agents. Authentication, memory, tooling — without the boilerplate.</div>
+          <div class="card-footer">
+            <span class="card-price">API</span>
+            <span class="card-arrow">↗</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div>
+          <div class="section-label">About</div>
+          <h2 class="section-title">Built by<br />one person.</h2>
+        </div>
+        <div class="about-body">
+          <div class="about-badge">Hint of Intellect LLC</div>
+          <p>
+            One person. Too many ideas. Building tools that solve problems nobody asked about —
+            until they needed them.
+          </p>
+          <p>
+            Hint of Intellect is a solo AI product studio focused on consumer agents, developer
+            infrastructure, and the occasional digital product that makes you say <em style="color:var(--gold);font-style:normal;">"why didn't this exist already."</em>
+          </p>
+          <p>
+            Everything ships small, works well, and costs less than a dinner you'll forget.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">hint<span>of</span>intellect</div>
+          <div class="footer-copy">&copy; 2026 Hint of Intellect LLC. All rights reserved.</div>
+          <div class="footer-contact">
+            <a href="mailto:admin@hintofintellect.com">admin@hintofintellect.com</a>
+          </div>
+        </div>
+        <div class="footer-links">
+          <a href="https://x.com/softlaunchd" target="_blank" rel="noopener">X / Twitter</a>
+          <a href="https://starwitness.gumroad.com" target="_blank" rel="noopener">Gumroad</a>
+          <a href="https://github.com/starwitnessdigital" target="_blank" rel="noopener">GitHub</a>
+          <a href="mailto:admin@hintofintellect.com">Contact</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
